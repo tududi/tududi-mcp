@@ -60,3 +60,29 @@ Ask Claude things like:
 |----------|---------|----------|
 | `TUDUDI_API_TOKEN` | - | Yes |
 | `TUDUDI_URL` | `http://localhost:3002` | No |
+
+## HTTP transport (remote clients)
+
+Besides stdio, the server can run as a stateless Streamable HTTP endpoint,
+for MCP clients that connect over the network (e.g. phone apps).
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| MCP_TRANSPORT | stdio | `stdio` or `http` |
+| MCP_HTTP_HOST | 0.0.0.0 | Bind address |
+| MCP_HTTP_PORT | 3000 | Port |
+| MCP_HTTP_PATH | /mcp | Endpoint path |
+| MCP_AUTH_TOKEN | - | Bearer token clients must send (`Authorization: Bearer <token>`). Strongly recommended. |
+| TUDUDI_TOOLS | all | Comma-separated tool allowlist, e.g. `add_to_inbox,list_inbox` |
+
+```bash
+docker build -t tududi-mcp .
+docker run -p 3000:3000 \
+  -e TUDUDI_URL=http://tududi:3002 \
+  -e TUDUDI_API_TOKEN=... \
+  -e MCP_AUTH_TOKEN=$(openssl rand -hex 32) \
+  -e TUDUDI_TOOLS=add_to_inbox,list_inbox \
+  tududi-mcp
+```
+
+`GET /healthz` returns `ok`. See `deploy/` for a compose file and Caddy example.
